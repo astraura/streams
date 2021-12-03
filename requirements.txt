@@ -1,7 +1,7 @@
 pandas
 gsheetsdb
 streamlit
-talib>=0.4.21
+ta
 numpy
 plotly
 PIL
