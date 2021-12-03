@@ -1,0 +1,7 @@
+pandas
+gsheetsdb
+streamlit
+talib
+numpy
+plotly
+PIL
