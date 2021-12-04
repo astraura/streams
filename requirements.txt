@@ -4,4 +4,4 @@ streamlit
 ta
 numpy
 plotly
-PIL
+
