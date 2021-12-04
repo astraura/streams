@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import ta
-from PIL import Image
+#from PIL import Image
 
 #image = Image.open('sunrise.jpg')
 #st.image(image, caption='Sunrise', use_column_width=True)
