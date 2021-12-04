@@ -59,7 +59,7 @@ def chart2(df):
 if add_selectbox:
     symbol = add_selectbox
     st.write("You have selected: ", symbol)
-    df = pd.read_csv('yearly/{}'.format(symbol)+'.csv')[-300:]
+    df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-300:]
 
     st.header  = add_selectbox + '  Close \n'
     #st.line_chart(df['Close'])
