@@ -4,4 +4,8 @@ streamlit
 ta
 numpy
 plotly
-
+yfinance
+time
+datetime
+scipy
+statistics
