@@ -12,7 +12,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from pandas import ExcelWriter
+#from pandas import ExcelWriter
 
 chrome_options = Options()
 path = 'data/'
@@ -293,9 +293,9 @@ def get_export_list(rs_df):
 
     exportList = exportList.sort_values(by='RS_Rating', ascending=False)
     #print('\n', exportList)
-    writer = ExcelWriter("ScreenOutput.xlsx")
-    exportList.to_excel(writer, "Sheet1")
-    writer.save()
+    #writer = ExcelWriter("ScreenOutput.xlsx")
+    exportList.to_csv("Nse 200 Momentum.csv")
+    #writer.save()
     return exportList
 
 st.subheader('Stock Selection Analysis: Nifty 200 index stocks')
