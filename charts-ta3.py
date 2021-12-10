@@ -1,6 +1,4 @@
 import streamlit as st
-# To make things easier later, we're also importing numpy and pandas for
-# working with sample data.
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -17,7 +15,7 @@ from selenium.webdriver.chrome.options import Options
 from pandas import ExcelWriter
 
 chrome_options = Options()
-path = 'yearly/'
+path = 'data/'
 #driver = webdriver.Chrome()
 #chrome_options.add_argument("--headless")
 
@@ -25,7 +23,7 @@ path = 'yearly/'
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
 df = pd.DataFrame()
-df = pd.read_csv('yearly/ZEEL.csv')
+df = pd.read_csv('data/^NSEI.csv')
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
@@ -77,7 +75,7 @@ def snapshot():
             symbol =  stock  #line.split(",")[2]
             #data = yf.download(symbol+'.NS', start="2020-01-01", end="2020-08-01")
             data = yf.download(symbol+'.NS', period='5y' )
-            data.to_csv('yearly/{}.csv'.format(symbol))
+            data.to_csv('data/{}.csv'.format(symbol))
             my_bar.progress( round(i/len(nifty_data)*100))
             i+=1
             #if i>10:
@@ -88,7 +86,7 @@ def snapshot():
         #st.write (symbol+'.NS')
 
     nifty= yf.download('^NSEI',period='5y')
-    nifty   .to_csv('yearly/^NSEI.csv')
+    nifty   .to_csv('data/^NSEI.csv')
 
     return {"Updation: ": "Success!" }
 
