@@ -9,3 +9,4 @@ datetime
 scipy
 statistics
 selenium
+chromedriver_binary-auto
