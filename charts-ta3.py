@@ -13,6 +13,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 #from pandas import ExcelWriter
+import chromedriver_binary  # Adds chromedriver binary to path
 
 chrome_options = Options()
 path = 'data/'
