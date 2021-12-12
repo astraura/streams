@@ -8,17 +8,9 @@ import time
 import datetime as dt
 from scipy import stats
 from statistics import mean
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
 #from pandas import ExcelWriter
-import chromedriver_binary  # Adds chromedriver binary to path
 
-chrome_options = Options()
 path = 'data/'
-#driver = webdriver.Chrome()
-#chrome_options.add_argument("--headless")
 
 
 nifty_data= pd.read_csv('nifty200.csv')
@@ -141,27 +133,7 @@ def sorted_returns(data):
     data.to_csv("Nifty_Portfolio_Momentum.csv")
     return data
 
-def get_funda_data():
-    xpath1='/html/body/section/div/div/div/div[4]/div/div/div[1]/div/div[2]/div[3]/div[3]/ul'
-    xpath2='/html/body/section/div/div/div/div[4]/div/div/div[1]/div/div[2]/div[3]/div[3]/ul/li[3]'
-    #xpath3='/html/body/section/div/div/div/div[4]/div/div/div[1]/div/div[2]/div[3]/div[4]/div/div/div[1]/table'
-    #driver = webdriver.Chrome(options=chrome_options)
-    driver = webdriver.Chrome()
-
-    driver.get("https://www.moneycontrol.com/markets/indian-indices/top-nse-200-companies-list/49?classic=true&categoryId=1&exType=N")
-    time.sleep(5)
-
-    #open tab
-    #driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't') 
-    elem1=driver.find_element(By.XPATH,xpath1)
-    elem1.find_element(By.XPATH,xpath2).click()
-    time.sleep(3)
-    source_code=driver.page_source
-
-    driver.close()
-    df = pd.read_html(source_code)[6]
-    df.to_csv('Nifty 200 funda data.csv')
-     
+  
 def get_fundas(df):
     vdf = df.copy()
     vdf.dropna()
@@ -367,7 +339,6 @@ if genre == 'Data Update':
 
     if st.button("Update database"):
         st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
-        get_funda_data()
         x=snapshot()
 
         st.write(x)
