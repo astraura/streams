@@ -19,8 +19,9 @@ firefoxOptions = Options()
 firefoxOptions.add_argument("--headless")
 driver = webdriver.Firefox(
     options=firefoxOptions,
-    executable_path="/home/appuser/.conda/bin/geckodriver",
 )
+    #executable_path="/home/appuser/.conda/bin/geckodriver",
+
 driver.get(URL)
 
 try:
