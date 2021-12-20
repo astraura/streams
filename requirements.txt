@@ -8,3 +8,4 @@ yfinance
 datetime
 scipy
 statistics
+selenium
