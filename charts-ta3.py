@@ -17,6 +17,9 @@ nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
 df = pd.DataFrame()
 df = pd.read_csv('data/^NSEI.csv')
+df_new = yf.download('ZEEL.NS', period='1d' )
+latest = df_new.index.values[0]
+last_update = pd.to_datetime(df[-1:]['Date'].values[0])
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
@@ -335,13 +338,28 @@ if genre == 'Momentum':
 #st.write("You have selected: " + add_selectbox)
 
 if genre == 'Data Update':
-    st.write("Database of stocks last updated on:", df[-1:]['Date'].values[0])
+    st.write("Database of stocks last updated on: ", last_update)
 
-    if st.button("Update database"):
-        st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
+    if latest>last_update:
+
         x=snapshot()
-
+        x= "Data Updated"
         st.write(x)
+    else:
+        st.write("UpDate is current. ", last_update)
+
+    if st.button("Update database"):  
+
+        st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
+
+        #get_funda_data()
+        if latest>last_update:
+
+            x=snapshot()
+            x= "Data Updated"
+            st.write(x)
+        else:
+            st.write("UpDate is current. ", last_update)
 
 
 
@@ -349,5 +367,7 @@ if genre == 'Data Update':
 #st.write(cpattern)
 #st.add_selectbox.selected
 st.write('Great! \n')
+
+
 
 
