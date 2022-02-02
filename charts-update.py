@@ -7,7 +7,7 @@ import yfinance as yf
 import time
 from datetime import  datetime as dt
 
-path = 'yearly/'
+path = 'data/'
 #driver = webdriver.Chrome()
 #chrome_options.add_argument("--headless")
 
@@ -15,7 +15,7 @@ path = 'yearly/'
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
 df = pd.DataFrame()
-df = pd.read_csv('yearly/ZEEL.csv')
+df = pd.read_csv('data/ZEEL.csv')
 df_new = yf.download('ZEEL.NS', period='1d' )
 latest = df_new.index.values[0]
 def snapshot():
@@ -33,7 +33,7 @@ def snapshot():
             symbol =  stock  #line.split(",")[2]
             #data = yf.download(symbol+'.NS', start="2020-01-01", end="2020-08-01")
             data = yf.download(symbol+'.NS', period='3y' )
-            data.to_csv('yearly/{}.csv'.format(symbol))
+            data.to_csv('data/{}.csv'.format(symbol))
             my_bar.progress( round(i/len(nifty_data)*100))
             i+=1
             #if i>10:
@@ -44,7 +44,7 @@ def snapshot():
         #st.write (symbol+'.NS')
 
     nifty= yf.download('^NSEI',period='3y')
-    nifty   .to_csv('yearly/^NSEI.csv')
+    nifty   .to_csv('data/^NSEI.csv')
 
     return {"Updation: ": "Success!" }
 
