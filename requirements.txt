@@ -8,4 +8,4 @@ yfinance
 datetime
 scipy
 statistics
-ftplib
+
