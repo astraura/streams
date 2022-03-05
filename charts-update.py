@@ -340,10 +340,10 @@ get_export_list(rs_df)
 #st.write(cpattern)
 #st.add_selectbox.selected
 
-url = st.secrets["url"]
-username = st.secrets["username"]
-password = st.secrets["password"]
-session = FTP(url,username,password)
+#url = st.secrets["url"]
+#username = st.secrets["username"]
+#password = st.secrets["password"]
+session = FTP("ftp.astraura.in","snm","Gompada2021#")
 
 file = open('pivots.csv','rb')                  # file to send
 remotefile = 'httpdocs/stocks/pivots.csv'
