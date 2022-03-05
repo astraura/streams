@@ -339,7 +339,12 @@ get_export_list(rs_df)
 #st.write("Candlestick Pattern Observed table1:")
 #st.write(cpattern)
 #st.add_selectbox.selected
-session = FTP(st.secrets["url"],st.secrets["username"],st.secrets["password"])
+
+url = st.secrets["url"]
+username = st.secrets["username"]
+password = st.secrets["password"]
+session = FTP(url,username,password)
+
 file = open('pivots.csv','rb')                  # file to send
 remotefile = 'httpdocs/stocks/pivots.csv'
 session.storbinary('STOR '+remotefile, file)     # send the file
