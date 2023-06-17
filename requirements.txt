@@ -1,5 +1,4 @@
-pandas==1.3.5
-gsheetsdb
+pandas==1.2.4
 streamlit
 ta
 numpy
