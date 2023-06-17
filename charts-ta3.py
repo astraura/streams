@@ -74,7 +74,7 @@ def snapshot():
             symbol =  stock  #line.split(",")[2]
             #data = yf.download(symbol+'.NS', start="2020-01-01", end="2020-08-01")
             data = yf.download(symbol+'.NS', period='5y' )
-            data.to_csv('yearly/{}.csv'.format(symbol))
+            data.to_csv('data/{}.csv'.format(symbol))
             my_bar.progress( round(i/len(nifty_data)*100))
             i+=1
             #if i>10:
@@ -85,7 +85,7 @@ def snapshot():
         #st.write (symbol+'.NS')
 
     nifty= yf.download('^NSEI',period='5y')
-    nifty   .to_csv('yearly/^NSEI.csv')
+    nifty   .to_csv('data/^NSEI.csv')
 
     return {"Updation: ": "Success!" }
 
@@ -318,7 +318,7 @@ if genre == 'Charts':
         st.write("You have selected: ", symbol)
         st.write(company)
 
-        df = pd.read_csv('yearly/{}'.format(symbol)+'.csv')[-300:]
+        df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-300:]
 
         st.header  = add_selectbox + '  Close \n'
         #st.line_chart(df['Close'])
