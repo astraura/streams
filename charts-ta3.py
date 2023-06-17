@@ -1,4 +1,6 @@
 import streamlit as st
+# To make things easier later, we're also importing numpy and pandas for
+# working with sample data.
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -8,15 +10,16 @@ import time
 import datetime as dt
 from scipy import stats
 from statistics import mean
-#from pandas import ExcelWriter
 
-path = 'data/'
+path = 'yearly/'
+#driver = webdriver.Chrome()
+#chrome_options.add_argument("--headless")
 
 
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
 df = pd.DataFrame()
-df = pd.read_csv('data/^NSEI.csv')
+df = pd.read_csv('yearly/ZEEL.csv')
 df_new = yf.download('ZEEL.NS', period='1d' )
 latest = df_new.index.values[0]
 last_update = pd.to_datetime(df[-1:]['Date'].values[0])
@@ -71,7 +74,7 @@ def snapshot():
             symbol =  stock  #line.split(",")[2]
             #data = yf.download(symbol+'.NS', start="2020-01-01", end="2020-08-01")
             data = yf.download(symbol+'.NS', period='5y' )
-            data.to_csv('data/{}.csv'.format(symbol))
+            data.to_csv('yearly/{}.csv'.format(symbol))
             my_bar.progress( round(i/len(nifty_data)*100))
             i+=1
             #if i>10:
@@ -82,7 +85,7 @@ def snapshot():
         #st.write (symbol+'.NS')
 
     nifty= yf.download('^NSEI',period='5y')
-    nifty   .to_csv('data/^NSEI.csv')
+    nifty   .to_csv('yearly/^NSEI.csv')
 
     return {"Updation: ": "Success!" }
 
@@ -136,7 +139,7 @@ def sorted_returns(data):
     data.to_csv("Nifty_Portfolio_Momentum.csv")
     return data
 
-  
+     
 def get_fundas(df):
     vdf = df.copy()
     vdf.dropna()
@@ -213,7 +216,7 @@ def get_rs_df():
     return rs_df
 def get_export_list(rs_df):
     rs_stocks = rs_df['Ticker']
-    exportList = pd.DataFrame(columns=['Stock', "RS_Rating", "Price", "50 Day MA", "150 Day Ma", "200 Day MA", "52 Week Low", "52 week High"])
+    exportList = pd.DataFrame(columns=['Stock', "RS_Rating", "Price", "52wkHigh Gap%", "50 Day MA", "150 Day Ma", "200 Day MA", "52 Week Low", "52 week High"])
 
     for stock in rs_stocks:    
         try:
@@ -230,6 +233,7 @@ def get_export_list(rs_df):
             moving_average_200 = df["SMA_200"][-1]
             low_of_52week = round(min(df["Low"][-260:]), 2)
             high_of_52week = round(max(df["High"][-260:]), 2)
+            gap_52wkHigh = round((high_of_52week - currentClose) / currentClose * 100,2)
             RS_Rating = round(rs_df[rs_df['Ticker']==stock].RS_Rating.tolist()[0])
             
             try:
@@ -260,7 +264,7 @@ def get_export_list(rs_df):
             
             # If all conditions above are true, add stock to exportList
             if(condition_1 and condition_2 and condition_3 and condition_4 and condition_5 and condition_6 and condition_7):
-                exportList = exportList.append({'Stock': stock, "RS_Rating": RS_Rating ,"Price":currentClose, "50 Day MA": moving_average_50, "150 Day Ma": moving_average_150, "200 Day MA": moving_average_200, "52 Week Low": low_of_52week, "52 week High": high_of_52week}, ignore_index=True)
+                exportList = exportList.append({'Stock': stock, "RS_Rating": RS_Rating ,"Price":currentClose, "52wkHigh Gap%" :gap_52wkHigh ,"50 Day MA": moving_average_50, "150 Day Ma": moving_average_150, "200 Day MA": moving_average_200, "52 Week Low": low_of_52week, "52 week High": high_of_52week}, ignore_index=True)
                 #print (stock + " made the Minervini requirements")
         except Exception as e:
             #print (e)
@@ -269,9 +273,8 @@ def get_export_list(rs_df):
 
     exportList = exportList.sort_values(by='RS_Rating', ascending=False)
     #print('\n', exportList)
-    #writer = ExcelWriter("ScreenOutput.xlsx")
     exportList.to_csv("Nse 200 Momentum.csv")
-    #writer.save()
+
     return exportList
 
 st.subheader('Stock Selection Analysis: Nifty 200 index stocks')
@@ -315,7 +318,7 @@ if genre == 'Charts':
         st.write("You have selected: ", symbol)
         st.write(company)
 
-        df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-300:]
+        df = pd.read_csv('yearly/{}'.format(symbol)+'.csv')[-300:]
 
         st.header  = add_selectbox + '  Close \n'
         #st.line_chart(df['Close'])
@@ -336,6 +339,8 @@ if genre == 'Momentum':
     st.write("Relative Strength stocks top 30%")
     st.write(rs_df)
 #st.write("You have selected: " + add_selectbox)
+
+
 
 if genre == 'Data Update':
     st.write("Database of stocks last updated on: ", last_update)
@@ -367,7 +372,5 @@ if genre == 'Data Update':
 #st.write(cpattern)
 #st.add_selectbox.selected
 st.write('Great! \n')
-
-
 
 
