@@ -8,5 +8,4 @@ datetime
 scipy
 statistics
 requests
-streamlit.components.v1
 
