@@ -198,10 +198,10 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(['Filtered','Momentum Stocks', 'Swing Pic
 with tab1:
     st.subheader("Filtered on  the basis of Returns and gap to 52 week high")
     #st.write(sorted_data)
-    gap52 =  float(st.text_input('Select maximum gap or fall from 52 week high %:  ',  12))
-    ret1y  = float(st.text_input('Select minimum value values for 1 Year return %: ', 25))
-    ret3y = float(st.text_input('Select minimum value values for 3 Year return %: ', 75))    
-    monret = float(st.text_input('Select minimum 1 month return %',  7))
+    gap52 =  float(st.text_input('Input maximum gap or fall from 52 week high %:  ',  12))
+    ret1y  = float(st.text_input('Input minimum value  for 1 Year return %: ', 25))
+    ret3y = float(st.text_input('Input minimum value for 3 Year return %: ', 75))    
+    monret = float(st.text_input('Input minimum 1 month return %',  7))
 
     #st.write('Values:', values)
     #st.write(values[1])
@@ -236,7 +236,7 @@ with tab3:
     values = st.slider(
     'Stocks with  range of  correction (gap) to 52 week high: ',
     0.0, 50.0, (5.0, 12.0))
-    st.write('Correction % from 52 week high: ' + str(values[0]) + ' - ' + str(values[1]))
+    st.write('Correction % from 52 week high (min and max range input using the slide detault 5 to 12) : ' + str(values[0]) + ' - ' + str(values[1]))
     niftyscr2= dfnew1.copy()
     nifty2 = niftyscr2[niftyscr2['52wkhigap'] >= values[0]]
     nifty2 = nifty2[nifty2['52wkhigap'] < values[1]]
