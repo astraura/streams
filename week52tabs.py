@@ -21,7 +21,7 @@ if did_it_run.loc[0,'Date']==dt.date.today():
     dft= pd.read_csv('nifty200 trendlyne.csv', index_col=[0])         
     dft0=dft.copy()
     #dft0.rename(columns = {'LTPLast Traded Price':'Last Close'}, inplace = True)
-    dft0.drop(['3M Price Chart'], axis=1, inplace=True,)
+    #dft0.drop(['3M Price Chart'], axis=1, inplace=True,)
         
 else: 
     ran_already= False
