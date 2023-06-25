@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-import json
+#import json
 import streamlit as st
 
 niftyapiurl='https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200'
