@@ -280,7 +280,7 @@ def get_export_list(rs_df):
 st.subheader('Stock Selection Analysis: Nifty 200 index stocks')
 genre = st.sidebar.radio(
      "Select Analysis tables",
-    ('Returns', 'Fundamental', 'Momentum','Charts','Data Update'))
+    ('Data Update', 'Returns', 'Fundamental', 'Momentum','Charts'))
     
 if genre == 'Returns':
     data = returns()
