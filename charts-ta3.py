@@ -285,10 +285,13 @@ genre = st.sidebar.radio(
 if genre == 'Returns':
     data = returns()
     sorted_data = sorted_returns(data)
+    sorted_data = sorted_data.style.format({"Price": "{:.2f}"})
 
     st.write("Sorted and  Ranked Top 15 on the basis of Returns")
     st.write(sorted_data)
     st.write('Momentum of returns. Full list')
+    
+    data = data.style.format({"Price": "{:.2f}"})
 
     st.write(data)
 
@@ -297,8 +300,12 @@ if genre == 'Fundamental':
     vdf = get_fundas(fdf)
     ranked_data = ranked_fundas(vdf)
     st.write('Sorted and Ranked based on fundas top 15')
+    ranked_data = ranked_data.style.format({"LTP": "{:.2f}"})
+    
     st.write(ranked_data)
     st.write('Ranking based on fundamentals. Full list')
+    vdf = vdf.style.format({"LTP": "{:.2f}"})
+    
     st.write(vdf)
 
 if genre == 'Charts':
@@ -333,6 +340,8 @@ if genre == 'Momentum':
     st.write("High Momentum stocks")
     rs_df = get_rs_df()
     export_list = get_export_list(rs_df)
+    export_list = export_list.style.format({"Price": "{:.2f}"})
+    
     st.write(export_list)
 
     #st.write("You didn't select comedy.")
