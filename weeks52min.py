@@ -22,6 +22,8 @@ cols=['Symbol','Close','lastClose','yearHigh','yearLow', 'return1y', 'nearWKH','
 
 df = pd.DataFrame(data, columns=cols)
 #print(df)
+df.replace(to_replace = '-', value = 0, inplace=True)
+
 
 df['HiLoRange%'] = round((df['yearHigh']/df['yearLow']-1)*100,2)
 index_return = df[df['Symbol']=='NIFTY 200']['return1y'].values[0]
