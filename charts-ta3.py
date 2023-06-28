@@ -153,14 +153,15 @@ def get_fundas(df):
     return vdf
 
 def ranked_fundas(vdf):
-    vdfselect0 = vdf[vdf['PE/ROE']<.5*vdf['PE/ROE'].mean()]
+    vdfselect0 = vdf[vdf['ROE/PE']<.5*vdf['ROE/PE'].mean()]
     vdfselect = vdfselect0.copy()
     vdfselect['NPM%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
     vdfselect['ROE%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
-    vdfselect['PE/ROE_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
+    vdfselect['ROE/PE_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
     vdfselect['HQV_Score']=pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
-    criteria = ['NPM%','ROE%','PE/ROE']
+    criteria = ['NPM%','ROE%','ROE/PE']
     #time_period = ['1yReturn','6mReturn','3mReturn','1mReturn']
+
 
     for row in vdfselect.index:
         for criterion in criteria:
@@ -277,76 +278,32 @@ def get_export_list(rs_df):
 
     return exportList
 
+def write_formatted(dfx):
+    colnames=[]
+    for col in dfx.columns:
+        colnames.append(col)
+    colnames=colnames[1:]    
+    st.dataframe(dfx.style.format(subset=colnames, formatter="{:.2f}"))
+
+
 st.subheader('Stock Selection Analysis: Nifty 200 index stocks')
 genre = st.sidebar.radio(
      "Select Analysis tables",
     ('Data Update', 'Returns', 'Fundamental', 'Momentum','Charts'))
     
-if genre == 'Returns':
-    data = returns()
-    sorted_data = sorted_returns(data)
-    sorted_data = sorted_data.style.format({"Price": "{:.2f}"})
-
-    st.write("Sorted and  Ranked Top 15 on the basis of Returns")
-    st.write(sorted_data)
-    st.write('Momentum of returns. Full list')
-    
-    data = data.style.format({"Price": "{:.2f}"})
-
-    st.write(data)
-
-if genre == 'Fundamental':
-    fdf = pd.read_csv('Nifty 200 funda data.csv')
-    vdf = get_fundas(fdf)
-    ranked_data = ranked_fundas(vdf)
-    st.write('Sorted and Ranked based on fundas top 15')
-    ranked_data = ranked_data.style.format({"LTP": "{:.2f}"})
-    
-    st.write(ranked_data)
-    st.write('Ranking based on fundamentals. Full list')
-    vdf = vdf.style.format({"LTP": "{:.2f}"})
-    
-    st.write(vdf)
-
-if genre == 'Charts':
-    st.subheader('Stock charts app')
-
-    st.sidebar.header('Select Stock')
-    add_selectbox = st.sidebar.selectbox(
-        "Select the stock for  chart",
-        nifty_data['Symbol']
-    )
-
-    if add_selectbox:
-        symbol = add_selectbox
-        company = nifty_data[nifty_data['Symbol']==symbol]['Company Name']
-        company=company.values[0]
-        #company = company['Company Name']
-        st.write("You have selected: ", symbol)
-        st.write(company)
-
-        df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-300:]
-
-        st.header  = add_selectbox + '  Close \n'
-        #st.line_chart(df['Close'])
-        figc = chart(df)
-        st.plotly_chart(figc, use_container_width=True)
-        figc2 = chart2(df)
-        st.plotly_chart(figc2, use_container_width=True)
-
-
 if genre == 'Momentum':
 
     st.write("High Momentum stocks")
     rs_df = get_rs_df()
     export_list = get_export_list(rs_df)
-    export_list = export_list.style.format({"Price": "{:.2f}"})
-    
-    st.write(export_list)
+    #export_list = export_list.style.format({"Price": "{:.2f}"})
 
+    #st.write(export_list)
+    write_formatted(export_list)
     #st.write("You didn't select comedy.")
     st.write("Relative Strength stocks top 30%")
-    st.write(rs_df)
+    #st.write(rs_df)
+    write_formatted(rs_df)
 #st.write("You have selected: " + add_selectbox)
 
 
