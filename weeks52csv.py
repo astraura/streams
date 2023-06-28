@@ -119,7 +119,7 @@ df1['return1m'] = df1['return1m'].astype(float)
 df1['ret_multiple']= df1['return1y']/index_return
 df1['RS_Rating'] = df1.ret_multiple.rank(pct=True) * 100
 
-df['HiLoRange%'] = round((df['yearHigh']/df['yearLow']-1)*100,2)
+df1['HiLoRange%'] = round((df1['yearHigh']/df1['yearLow']-1)*100,2)
 
 df1['nearWKH'] = round((df1['yearHigh']/df1['prev close']-1)*100,2)
 df1['nearWKL'] = round((df1['yearLow']/df1['prev close']-1)*100,2)
