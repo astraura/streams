@@ -91,7 +91,7 @@ for col in df.columns:
 #st.write(df)
 
 def write_formatted(dfx):
-st.dataframe(dfx.style.format(subset=['prev close','Close', 'chg','chg%', 'Volume','Value', 'yearHigh','yearLow',
+    st.dataframe(dfx.style.format(subset=['prev close','Close', 'chg','chg%', 'Volume','Value', 'yearHigh','yearLow',
         'return1y', 'return1m','nearWKH','nearWKL','ret_multiple','RS_Rating','HiLoRange%'], formatter="{:.2f}"))
 
 def write_formatted2(dfx):
