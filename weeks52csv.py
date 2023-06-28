@@ -93,6 +93,10 @@ for col in df.columns:
 def write_formatted(dfx):
     st.dataframe(dfx.style.format(subset=['prev close','Close', 'chg','chg%', 'Volume','Value', 'yearHigh','yearLow','return1y', 'return1m'], formatter="{:.2f}"))
 
+def write_formatted2(dfx):
+    st.dataframe(dfx.style.format(subset=['prev close','Close', 'chg','chg%', 'Volume','Value', 'yearHigh','yearLow',
+        'return1y', 'return1m'], formatter="{:.2f}"))
+
 
 #st.dataframe(df.style.format(subset=['prev close','Close', 'chg','chg%', 'Volume','Value', 'yearHigh','yearLow','return1y', 'return1m'], formatter="{:.2f}"))
 
@@ -120,6 +124,9 @@ df['HiLoRange%'] = round((df['yearHigh']/df['yearLow']-1)*100,2)
 df1['nearWKH'] = round((df1['yearHigh']/df1['prev close']-1)*100,2)
 df1['nearWKL'] = round((df1['yearLow']/df1['prev close']-1)*100,2)
 
+cols = ['Symbol', 'Close',  'yearHigh','yearLow','nearWKH','nearWKL', 'return1y', 'return1m', 'ret_multiple','RS_Rating','HiLoRange%','prev close', 'chg','chg%', 'Volume','Value']
+df1=df1[cols]
+
 df1=df1[df1['return1y']>0]
 df1=df1[df1['nearWKL']<-25]
 df1=df1[df1['nearWKH']<30]
@@ -132,10 +139,10 @@ df3 =df1.sort_values(by=['return1m','nearWKH'], ascending=[False, True]).copy()
 df3=df3[df3['nearWKH']<12]
 
 st.subheader(titles[0])
-st.write("Ranked and sorted based Relative Strenth and nearness to 52week high.")
+st.write("Stocks - Ranked and sorted based Relative Strenth and nearness to 52week high.")
 st.write("Relative strength is the rank with reference to returns of stock  vs index ")
-st.write("Filtered stocks above rank 70/100 and within 30% from 52 week high and 25% above 52 week low.")
-st.write("Stocks nearness to 52 week high max 12%")
+st.write("Filtered stocks are above rank 70/100 and within 30% from 52 week high and 25% above 52 week low.")
+st.write("Stocks nearness to 52 week high is set to max 12%")
 #df2= df2.style.format({"Close": "{:.2f}"})
 write_formatted(df2)
 
@@ -147,11 +154,11 @@ write_formatted(df3)
 #st.write(df3)
 st.subheader(titles[1])
 #dfi= dfi.style.format({"Close": "{:.2f}"})
-write_formatted(dfi)
+write_formatted2(dfi)
 
 #st.write(dfi)
 #dfs= dfs.style.format({"Close": "{:.2f}"})
-write_formatted(dfs)
+write_formatted2(dfs)
 
 #st.write(dfs) 
 
