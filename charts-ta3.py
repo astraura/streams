@@ -104,14 +104,19 @@ def returns():
     mycolumns = ["Symbol","Price" ,'1dretAnnualized', "y1_return","y1_return_percentile" , "m6_return","m6_return_percentile","m3_return","m3_return_percentile","m1_return","m1_return_percentile","HQM_Score"]
 
     data =pd.DataFrame(columns=mycolumns)
+    #st.write(df.style.format({"Predictions": "{:.2f}"}))
+
     #data['Symbol'] = stocks
     #One year return
     for i in stocks.index:
         df = pd.read_csv(path+stocks[i]+'.csv')
+        #df.round(decimals =2 )
+
         df['change']= df['Adj Close'].pct_change()
         yrate =  df.loc[-250:,'change'].mean()*252
         data.loc[i,'Symbol'] = stocks[i]
         data.loc[i,'Price'] = df.loc[len(df)-1,'Adj Close']
+
         data.loc[i, '1dretAnnualized']= yrate
         data.loc[i, 'y1_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-252,'Adj Close']-1
         data.loc[i, 'm6_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-130,'Adj Close']-1 
@@ -130,7 +135,10 @@ def returns():
             l.append(data.at[row,f"{time}_return_percentile"])
         avg = mean(l)
         data.at[row,"HQM_Score"] = avg
-    #data = data.round(2)
+    #data = data.round(decimals = 2)
+    #st.dataframe(data.style.format("{:.2%}"))
+
+    #data['Price'] = data['Price'].round(decimals =  2)
     data.to_csv('Nifty portfolio returns.csv')
 
     return data
@@ -148,8 +156,9 @@ def get_fundas(df):
     index_names = vdf[ vdf['P/E'] == 0].index
     vdf.drop(index_names, inplace = True)
 
-    vdf['PE/ROE']=vdf['P/E']/vdf['ROE%']
-    
+    #vdf['PE/ROE']=vdf['P/E']/vdf['ROE%']
+    vdf['ROE/PE']=vdf['ROE%']/vdf['P/E']
+   
     return vdf
 
 def ranked_fundas(vdf):
@@ -161,7 +170,6 @@ def ranked_fundas(vdf):
     vdfselect['HQV_Score']=pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
     criteria = ['NPM%','ROE%','ROE/PE']
     #time_period = ['1yReturn','6mReturn','3mReturn','1mReturn']
-
 
     for row in vdfselect.index:
         for criterion in criteria:
@@ -291,6 +299,72 @@ genre = st.sidebar.radio(
      "Select Analysis tables",
     ('Data Update', 'Returns', 'Fundamental', 'Momentum','Charts'))
     
+if genre == 'Returns':
+    data = returns()
+    sorted_data = sorted_returns(data)
+
+    st.write("Sorted and  Ranked Top 15 on the basis of Returns")
+    #st.write(sorted_data)
+    #col ="Price"
+    #sorted_data = sorted_data.style.format({"HQM_score": "{:.0f}"})
+    #fstr=''
+
+    #st.write(fstr)
+    #sorted_data = sorted_data.style.format({"Price": "{:.2f}"})
+
+    #st.write(sorted_data)
+    write_formatted(sorted_data)
+
+    st.write('Momentum of returns. Full list')
+    #data = data.style.format({"Price": "{:.2f}"})
+    write_formatted(data)
+    #st.write(data)
+
+    #st.write(data.style.format({"Price": "{:.2f}"}))
+
+
+if genre == 'Fundamental':
+    fdf = pd.read_csv('Nifty 200 funda data.csv', index_col=0)
+    vdf = get_fundas(fdf)
+    ranked_data = ranked_fundas(vdf)
+    st.write('Sorted and Ranked based on fundas top 15')
+    #ranked_data = ranked_data.style.format({"LTP": "{:.2f}"})
+
+    #st.write(ranked_data)
+    write_formatted(ranked_data)
+    st.write('Ranking based on fundamentals. Full list')
+    #vdf = vdf.style.format({"LTP": "{:.2f}"})
+   
+    #st.write(vdf)
+    write_formatted(vdf)
+
+if genre == 'Charts':
+    st.subheader('Stock charts app')
+
+    st.sidebar.header('Select Stock')
+    add_selectbox = st.sidebar.selectbox(
+        "Select the stock for  chart",
+        nifty_data['Symbol']
+    )
+
+    if add_selectbox:
+        symbol = add_selectbox
+        company = nifty_data[nifty_data['Symbol']==symbol]['Company Name']
+        company=company.values[0]
+        #company = company['Company Name']
+        st.write("You have selected: ", symbol)
+        st.write(company)
+
+        df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-300:]
+
+        st.header  = add_selectbox + '  Close \n'
+        #st.line_chart(df['Close'])
+        figc = chart(df)
+        st.plotly_chart(figc, use_container_width=True)
+        figc2 = chart2(df)
+        st.plotly_chart(figc2, use_container_width=True)
+
+
 if genre == 'Momentum':
 
     st.write("High Momentum stocks")
