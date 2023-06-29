@@ -7,7 +7,7 @@ from datetime import datetime as dt
 df200 = pd.DataFrame()
 df500 = pd.DataFrame()
 st.subheader("NSE Stock selection based on 52 week high.")
-msg = "'Warning. Page visits external sites to update data. Please wait. It may take a minute.'"
+msg = "Warning. Page visits external sites to update data. Please wait. It may take a minute."
 def getNifty(niftyapiurl, csvfile):
     niftyurl='https://www.nseindia.com/market-data/live-equity-market'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',}
@@ -24,7 +24,9 @@ def getNifty(niftyapiurl, csvfile):
 
 
 def gatherData():
-    st.warning(msg)
+    msg = "Warning. Page visits external sites to update data. Please wait. It may take a minute."
+
+    st.warning(msg, icon="⚠️")
     niftyapiurl1='https://www.nseindia.com/api/equity-stockIndices?csv=true&index=NIFTY%20200'
     niftyapiurl2 = "https://www.nseindia.com/api/equity-stockIndices?csv=true&index=NIFTY500%20MULTICAP%2050%3A25%3A25"
     getNifty(niftyapiurl1, 'Nifty_200.csv')
