@@ -78,12 +78,8 @@ else:
 #st.write(''curdate)
 st.write('Uptated on: ' )
 st.write(last_update)
-#st.write(df0)
+st.write(df0)
 
 
 
 
-#print(df)
-df = df0.copy()
-df.replace(to_replace = '-', value = 0, inplace=True)
-st.write(df)
