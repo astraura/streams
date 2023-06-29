@@ -4,10 +4,13 @@ import requests
 import pandas as pd
 import streamlit as st
 from datetime import datetime as dt
+
 df200 = pd.DataFrame()
 df500 = pd.DataFrame()
 st.subheader("NSE Stock selection based on 52 week high.")
-msg = "Warning. Page visits external sites to update data. Please wait. It may take a minute."
+
+msg = 'Warning. Page visits external sites to update data. Please wait. It may take a minute.'
+
 def getNifty(niftyapiurl, csvfile):
     niftyurl='https://www.nseindia.com/market-data/live-equity-market'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',}
@@ -24,9 +27,10 @@ def getNifty(niftyapiurl, csvfile):
 
 
 def gatherData():
-    msg = "Warning. Page visits external sites to update data. Please wait. It may take a minute."
+    msg = 'Warning. Page visits external sites to update data. Please wait. It may take a minute.'
 
-    st.warning(msg, icon="⚠️")
+    #st.write(msg)
+    st.warning(msg,icon="⚠️")
     niftyapiurl1='https://www.nseindia.com/api/equity-stockIndices?csv=true&index=NIFTY%20200'
     niftyapiurl2 = "https://www.nseindia.com/api/equity-stockIndices?csv=true&index=NIFTY500%20MULTICAP%2050%3A25%3A25"
     getNifty(niftyapiurl1, 'Nifty_200.csv')
@@ -38,7 +42,7 @@ def gatherData():
     updated = pd.DataFrame(data, columns=['Date'])
     updated.loc[0,'Date']= curd
     updated.to_csv('Updated.csv')
-    msg =''
+    msg = ''
 
 dfd = pd.read_csv("Updated.csv")
 last_update = pd.to_datetime(dfd[-1:]['Date'].values[0])
@@ -51,7 +55,6 @@ curdate = pd.to_datetime(dtdf[-1:]['Date'].values[0])
 #curdate
 #if pd.Timestamp.now()>last_update:
 if curdate  >last_update:
-
     gatherData()
     df200 = pd.read_csv("Nifty_200.csv", index_col=[0])
     df500 = pd.read_csv("Nifty_500multi.csv", index_col=[0])
@@ -126,10 +129,8 @@ df1['HiLoRange%'] = round((df1['yearHigh']/df1['yearLow']-1)*100,2)
 
 df1['nearWKH'] = round((df1['yearHigh']/df1['prev close']-1)*100,2)
 df1['nearWKL'] = round((df1['yearLow']/df1['prev close']-1)*100,2)
-
 cols = ['Symbol', 'Close',  'yearHigh','yearLow','nearWKH','nearWKL', 'return1y', 'return1m', 'ret_multiple','RS_Rating','HiLoRange%','prev close', 'chg','chg%', 'Volume','Value']
 df1=df1[cols]
-
 df1=df1[df1['return1y']>0]
 df1=df1[df1['nearWKL']<-25]
 df1=df1[df1['nearWKH']<30]
@@ -162,7 +163,6 @@ write_formatted2(dfi)
 #st.write(dfi)
 #dfs= dfs.style.format({"Close": "{:.2f}"})
 write_formatted2(dfs)
-
 #st.write(dfs) 
 
 #st.dataframe(df.style.format(subset=['prev close','Close', 'chg','chg%', 'Volume','Value', 'yearHigh','yearLow','return1y', 'return1m'], formatter="{:.2f}"))
