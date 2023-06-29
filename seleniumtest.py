@@ -25,6 +25,6 @@ with st.echo():
     options.add_argument('--headless')
 
     driver = get_driver()
-    driver.get("http://example.com")
-
+    #driver.get("http://example.com")
+    driver.get("https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200")
     st.code(driver.page_source)
