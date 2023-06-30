@@ -8,6 +8,4 @@ datetime
 scipy
 statistics
 requests
-seleniumbase
-webdriver-manager
-
+bs4
