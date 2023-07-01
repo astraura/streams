@@ -9,7 +9,7 @@ import datetime as dt
 
 
 
-nifty_data= pd.read_csv('nifty200.csv')
+nifty_data= pd.read_csv('NSE_symbols.csv')
 
 ##Initiate Data
 did_it_run = pd.read_csv('ran_once.csv')
@@ -47,6 +47,28 @@ else:
     dft0.drop(['3M Price Chart'], axis=1, inplace=True,)
 
 def company2symbol(company):
+    try:
+        company = company.replace('(',"")
+        company = company.replace(')',"")
+        nifsymbol = nifty_list[nifty_list['Company Name'].str.lower()==company.lower()]['Symbol']
+        return nifsymbol.values[0]
+
+        
+
+    except:
+        try:
+            nifsymbol = nifty_list[nifty_list['Company Name'].str.contains(company[:10])]['Symbol']
+            return nifsymbol.values[0]
+        except:
+            try: 
+                
+                nifsymbol = nifty_list[nifty_list['Company Name'].str.contains(company[:5])]['Symbol']
+                return nifsymbol.values[0]
+            except:
+                
+                return company
+
+def company2symbol2(company):
 
     try:
 
@@ -129,12 +151,18 @@ def returns(symbol, field):
         return float(ret.values[0].split(' ')[2].replace('%',''))
     except:
         return 0      
-    
-nifty_list  = pd.read_csv("nse_symbols2.csv")
-#nifty_list['ncompany']=nifty_list['ncompany'].apply(lambda x: x.strip())
-sector_list = pd.read_csv("nifty500.csv")
 
-dft0['Symbol']=dft0['Stock Name'].apply(lambda x: company2symbol(x))
+
+
+#nifty_list  = pd.read_csv("nse_symbols2.csv")
+#nifty_list['ncompany']=nifty_list['ncompany'].apply(lambda x: x.strip())
+#sector_list = pd.read_csv("nifty500.csv")
+
+nifty_list  = pd.read_csv("NSE_symbols.csv") #pd.read_csv("nse_symbols2.csv")
+sector_list = pd.read_csv("NSE_symbols.csv")
+
+dft0['Symbol'] =dft0['Stock Name']
+dft0['Symbol']=dft0['Symbol'].apply(lambda x: company2symbol(x))
 dft0['Sector']=dft0['Symbol'].apply(lambda x: company2sector(x))
 dft0['WkLow']= dft0['Symbol'].apply(lambda x: lweek(x))
 dft0['MonHi']= dft0['Symbol'].apply(lambda x: hmon(x))
@@ -151,8 +179,27 @@ dft0['1 Year Return%'] = dft0['Symbol'].apply(lambda x: returns(x, '1 Year High 
 dft0['3 Year Return%'] = dft0['Symbol'].apply(lambda x: returns(x, '3 Year High low(%)'))
 
 dft0.fillna(0)
+dft0.replace(to_replace = '-', value = 0, inplace=True)
+
+dft0.replace(',','', regex=True, inplace=True)
+
 dft0 = dft0.loc[:, ~dft0.columns.str.contains('^Unnamed')]
-dfnew1 = dft0[['Symbol','Sector', 'Last Close','WkLow','MonHi','MonLow','52wkhi', '52wklo','52wkhigap','52wk Range%','Monthly Range%','Monthly Return%', '1 Year Return%', '3 Year Return%']].copy()
+dfnew1 = dft0[['Stock Name','Symbol','Sector', 'Last Close','WkLow','MonHi','MonLow','52wkhi', '52wklo','52wkhigap','52wk Range%','Monthly Range%','Monthly Return%', '1 Year Return%', '3 Year Return%']].copy()
+
+
+for col in dfnew1.columns:
+    if (col=="Symbol" or col=='Stock Name' or col=='Sector'):
+        pass
+    else:
+        dfnew1[col]= dfnew1[col].astype(float)
+
+def write_formatted(dfx, except_cols):
+    colnames=[]
+    for col in dfx.columns:
+        colnames.append(col)
+    colnames=colnames[except_cols:]    
+    st.dataframe(dfx.style.format(subset=colnames, formatter="{:.2f}"))
+
 
 niftyscr = pd.DataFrame()
 #dft1.to_csv('nifty trendlyne.csv')
@@ -198,10 +245,10 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(['Filtered','Momentum Stocks', 'Swing Pic
 with tab1:
     st.subheader("Filtered on  the basis of Returns and gap to 52 week high")
     #st.write(sorted_data)
-    gap52 =  float(st.text_input('Input maximum gap or fall from 52 week high %:  ',  12))
-    ret1y  = float(st.text_input('Input minimum value  for 1 Year return %: ', 25))
-    ret3y = float(st.text_input('Input minimum value for 3 Year return %: ', 75))    
-    monret = float(st.text_input('Input minimum 1 month return %',  7))
+    gap52 =  float(st.text_input('Select maximum gap or fall from 52 week high %:  ',  12))
+    ret1y  = float(st.text_input('Select minimum value values for 1 Year return %: ', 25))
+    ret3y = float(st.text_input('Select minimum value values for 3 Year return %: ', 75))    
+    monret = float(st.text_input('Select minimum 1 month return %',  7))
 
     #st.write('Values:', values)
     #st.write(values[1])
@@ -220,7 +267,8 @@ with tab1:
     niftyscr2 = niftyscr2[niftyscr2['3 Year Return%']> ret3y]
 
     #niftyscr = niftyscr2
-    st.write(niftyscr2)
+    write_formatted(niftyscr2,3)
+    #st.write(niftyscr2)
 
 with tab2:
 #if genre == 'Momentum Stocks':
@@ -229,19 +277,23 @@ with tab2:
     dftop = int(st.text_input("Show top records: ",  30))
     niftyscr= dfnew1.copy()
     niftyscr2 = niftyscr.sort_values(by=['Monthly Return%','1 Year Return%',"52wkhigap"], ascending=[ False, False, True])
-    st.write(niftyscr2.head(dftop))
+    write_formatted(niftyscr2.head(dftop),3)
+
+    #st.write(niftyscr2.head(dftop))
 
 with tab3:
 #if genre == 'Swing Picks':
     values = st.slider(
     'Stocks with  range of  correction (gap) to 52 week high: ',
     0.0, 50.0, (5.0, 12.0))
-    st.write('Correction % from 52 week high (min and max range input using the slide detault 5 to 12) : ' + str(values[0]) + ' - ' + str(values[1]))
+    st.write('Correction % from 52 week high: ' + str(values[0]) + ' - ' + str(values[1]))
     niftyscr2= dfnew1.copy()
     nifty2 = niftyscr2[niftyscr2['52wkhigap'] >= values[0]]
     nifty2 = nifty2[nifty2['52wkhigap'] < values[1]]
     nifty2 = nifty2.sort_values(by=['Monthly Return%','1 Year Return%',"52wkhigap"], ascending=[ False, False, True])
-    st.write(nifty2.head(15))
+    write_formatted(nifty2,3)
+
+    #st.write(nifty2.head(15))
 
 with tab4:
 #if genre == 'Charts':
