@@ -10,6 +10,9 @@ import time
 import datetime as dt
 from scipy import stats
 from statistics import mean
+
+path = 'data/'
+
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
 df = pd.DataFrame()
