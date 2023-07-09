@@ -12,6 +12,9 @@ from scipy import stats
 from statistics import mean
 
 path = 'data/'
+#driver = webdriver.Chrome()
+#chrome_options.add_argument("--headless")
+
 
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
@@ -20,7 +23,6 @@ df = pd.read_csv('data/ZEEL.csv')
 df_new = yf.download('ZEEL.NS', period='1d' )
 latest = df_new.index.values[0]
 last_update = pd.to_datetime(df[-1:]['Date'].values[0])
-
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
@@ -97,21 +99,24 @@ def snapshot2():
 
 def returns():
     
-    nifdf = pd.read_csv('nifty200.csv')
-    stocks =nifdf['Symbol']
+    stocks = pd.read_csv('nifty200.csv')['Symbol']
     #mycolumns=['Symbol', '1dretAnnualized','1y','6m','3m','1m',]
-    mycolumns = ["Symbol","Company","Price" ,'1dretAnnualized', "y1_return","y1_return_percentile" , "m6_return","m6_return_percentile","m3_return","m3_return_percentile","m1_return","m1_return_percentile","HQM_Score"]
+    mycolumns = ["Symbol","Price" ,'1dretAnnualized', "y1_return","y1_return_percentile" , "m6_return","m6_return_percentile","m3_return","m3_return_percentile","m1_return","m1_return_percentile","HQM_Score"]
 
     data =pd.DataFrame(columns=mycolumns)
+    #st.write(df.style.format({"Predictions": "{:.2f}"}))
+
     #data['Symbol'] = stocks
     #One year return
     for i in stocks.index:
         df = pd.read_csv(path+stocks[i]+'.csv')
+        #df.round(decimals =2 )
+
         df['change']= df['Adj Close'].pct_change()
         yrate =  df.loc[-250:,'change'].mean()*252
         data.loc[i,'Symbol'] = stocks[i]
-        data.loc[i,'Company']= nifdf[nifdf['Symbol']==stocks[i]]['Company Name'].values[0]
         data.loc[i,'Price'] = df.loc[len(df)-1,'Adj Close']
+
         data.loc[i, '1dretAnnualized']= yrate
         data.loc[i, 'y1_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-252,'Adj Close']-1
         data.loc[i, 'm6_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-130,'Adj Close']-1 
@@ -130,7 +135,10 @@ def returns():
             l.append(data.at[row,f"{time}_return_percentile"])
         avg = mean(l)
         data.at[row,"HQM_Score"] = avg
-    #data = data.round(2)
+    #data = data.round(decimals = 2)
+    #st.dataframe(data.style.format("{:.2%}"))
+
+    #data['Price'] = data['Price'].round(decimals =  2)
     data.to_csv('Nifty portfolio returns.csv')
 
     return data
@@ -184,9 +192,6 @@ def ranked_fundas(vdf):
 def get_rs_df():
     index_name = '^NSEI' # S&P 500
     returns_multiples = []
-    compnames =[]
-    #nifty 200 stocks and company names data
-    nifdf = pd.read_csv('nifty200.csv')
 
     # Index Returns
     index_df = pd.read_csv(path+'^NSEI.csv') 
@@ -205,25 +210,22 @@ def get_rs_df():
     
         returns_multiple = round((stock_return / index_return), 2)
         returns_multiples.extend([returns_multiple])
-        compname = nifdf[nifdf['Symbol']==ticker]['Company Name'].values[0]
-        compnames.append(compname)
+        
         #print (f'r: {ticker}; Returns Multiple against Nifty 200: {returns_multiple}\n')
         #time.sleep(1)
         #stock_data[ticker]=df
     # Creating dataframe of only top 30%
     #data_sets = pd.DataFrame(stock_data)
-    rs_df = pd.DataFrame(list(zip(tickers, compnames, returns_multiples)), columns=['Ticker','Company','Returns_multiple'])
-    
+    rs_df = pd.DataFrame(list(zip(tickers, returns_multiples)), columns=['Ticker', 'Returns_multiple'])
     rs_df['RS_Rating'] = rs_df.Returns_multiple.rank(pct=True) * 100
     rs_df = rs_df[rs_df.RS_Rating >= rs_df.RS_Rating.quantile(.70)]
 
     # Checking Minervini conditions of top 30% of stocks in given list
     #rs_stocks = rs_df['Ticker']
     return rs_df
-
 def get_export_list(rs_df):
     rs_stocks = rs_df['Ticker']
-    exportList = pd.DataFrame(columns=["Stock","Company", "RS_Rating", "Price", "52wkHigh Gap%", "50 Day MA", "150 Day Ma", "200 Day MA", "52 Week Low", "52 week High"])
+    exportList = pd.DataFrame(columns=['Stock', "RS_Rating", "Price", "52wkHigh Gap%", "50 Day MA", "150 Day Ma", "200 Day MA", "52 Week Low", "52 week High"])
 
     for stock in rs_stocks:    
         try:
@@ -242,7 +244,7 @@ def get_export_list(rs_df):
             high_of_52week = round(max(df["High"][-260:]), 2)
             gap_52wkHigh = round((high_of_52week - currentClose) / currentClose * 100,2)
             RS_Rating = round(rs_df[rs_df['Ticker']==stock].RS_Rating.tolist()[0])
-            Company = rs_df[rs_df['Ticker']==stock].Company.values[0]
+            
             try:
                 moving_average_200_20 = df["SMA_200"][-20]
             except Exception:
@@ -271,7 +273,7 @@ def get_export_list(rs_df):
             
             # If all conditions above are true, add stock to exportList
             if(condition_1 and condition_2 and condition_3 and condition_4 and condition_5 and condition_6 and condition_7):
-                exportList = exportList.append({'Stock': stock,"Company": Company, "RS_Rating": RS_Rating ,"Price":currentClose, "52wkHigh Gap%" :gap_52wkHigh ,"50 Day MA": moving_average_50, "150 Day Ma": moving_average_150, "200 Day MA": moving_average_200, "52 Week Low": low_of_52week, "52 week High": high_of_52week}, ignore_index=True)
+                exportList = exportList.append({'Stock': stock, "RS_Rating": RS_Rating ,"Price":currentClose, "52wkHigh Gap%" :gap_52wkHigh ,"50 Day MA": moving_average_50, "150 Day Ma": moving_average_150, "200 Day MA": moving_average_200, "52 Week Low": low_of_52week, "52 week High": high_of_52week}, ignore_index=True)
                 #print (stock + " made the Minervini requirements")
         except Exception as e:
             #print (e)
@@ -288,20 +290,99 @@ def write_formatted(dfx):
     colnames=[]
     for col in dfx.columns:
         colnames.append(col)
-    colnames=colnames[2:]    
+    colnames=colnames[1:]    
     st.dataframe(dfx.style.format(subset=colnames, formatter="{:.2f}"))
 
+
 st.subheader('Stock Selection Analysis: Nifty 200 index stocks')
-
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['Data Update','Returns', 'Fundamental', 'Momentum','Charts'])
+genre = st.sidebar.radio(
+     "Select Analysis tables",
+    ('Data Update', 'Returns', 'Fundamental', 'Momentum','Charts'))
     
-#genre = st.sidebar.radio(
-#     "Select Analysis tables",
-#   ('Returns', 'Fundamental', 'Momentum','Charts','Data Update'))
+if genre == 'Returns':
+    data = returns()
+    sorted_data = sorted_returns(data)
 
-with tab1:
+    st.write("Sorted and  Ranked Top 15 on the basis of Returns")
+    #st.write(sorted_data)
+    #col ="Price"
+    #sorted_data = sorted_data.style.format({"HQM_score": "{:.0f}"})
+    #fstr=''
 
-#if genre == 'Data Update':
+    #st.write(fstr)
+    #sorted_data = sorted_data.style.format({"Price": "{:.2f}"})
+
+    #st.write(sorted_data)
+    write_formatted(sorted_data)
+
+    st.write('Momentum of returns. Full list')
+    #data = data.style.format({"Price": "{:.2f}"})
+    write_formatted(data)
+    #st.write(data)
+
+    #st.write(data.style.format({"Price": "{:.2f}"}))
+
+
+if genre == 'Fundamental':
+    fdf = pd.read_csv('Nifty 200 funda data.csv', index_col=0)
+    vdf = get_fundas(fdf)
+    ranked_data = ranked_fundas(vdf)
+    st.write('Sorted and Ranked based on fundas top 15')
+    #ranked_data = ranked_data.style.format({"LTP": "{:.2f}"})
+
+    #st.write(ranked_data)
+    write_formatted(ranked_data)
+    st.write('Ranking based on fundamentals. Full list')
+    #vdf = vdf.style.format({"LTP": "{:.2f}"})
+   
+    #st.write(vdf)
+    write_formatted(vdf)
+
+if genre == 'Charts':
+    st.subheader('Stock charts app')
+
+    st.sidebar.header('Select Stock')
+    add_selectbox = st.sidebar.selectbox(
+        "Select the stock for  chart",
+        nifty_data['Symbol']
+    )
+
+    if add_selectbox:
+        symbol = add_selectbox
+        company = nifty_data[nifty_data['Symbol']==symbol]['Company Name']
+        company=company.values[0]
+        #company = company['Company Name']
+        st.write("You have selected: ", symbol)
+        st.write(company)
+
+        df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-300:]
+
+        st.header  = add_selectbox + '  Close \n'
+        #st.line_chart(df['Close'])
+        figc = chart(df)
+        st.plotly_chart(figc, use_container_width=True)
+        figc2 = chart2(df)
+        st.plotly_chart(figc2, use_container_width=True)
+
+
+if genre == 'Momentum':
+
+    st.write("High Momentum stocks")
+    rs_df = get_rs_df()
+    export_list = get_export_list(rs_df)
+    #export_list = export_list.style.format({"Price": "{:.2f}"})
+
+    #st.write(export_list)
+    write_formatted(export_list)
+    #st.write("You didn't select comedy.")
+    st.write("Relative Strength stocks top 30%")
+    #st.write(rs_df)
+    write_formatted(rs_df)
+#st.write("You have selected: " + add_selectbox)
+
+
+
+if genre == 'Data Update':
     st.write("Database of stocks last updated on: ", last_update)
 
     if latest>last_update:
@@ -324,95 +405,6 @@ with tab1:
             st.write(x)
         else:
             st.write("UpDate is current. ", last_update)
-
-    
-with tab2:
-#if genre == 'Returns':
-    data = returns()
-    sorted_data = sorted_returns(data)
-
-    st.write("Sorted and  Ranked Top 15 on the basis of Returns")
-    write_formatted(sorted_data)
-
-    #st.write(sorted_data)
-    st.write('Momentum of returns. Full list')
-    write_formatted(data)
-
-    #st.write(data)
-
-with tab3:
-#if genre == 'Fundamental':
-    fdf = pd.read_csv('Nifty 200 funda data.csv',index_col=[0])
-    vdf = get_fundas(fdf)
-    ranked_data = ranked_fundas(vdf)
-    st.write('Sorted and Ranked based on fundas top 15')
-    st.write(ranked_data)
-    st.write('Ranking based on fundamentals. Full list')
-    st.write(vdf)
-
-with tab4:
-
-#if genre == 'Momentum':
-
-    st.write("High Momentum stocks")
-    rs_df = get_rs_df()
-    export_list = get_export_list(rs_df)
-    write_formatted(export_list)
-    #st.write(export_list)
-
-    #st.write("You didn't select comedy.")
-    st.write("Relative Strength stocks top 30%")
-    write_formatted(rs_df)
-    #st.write(rs_df)
-#st.write("You have selected: " + add_selectbox)
-
-with tab5:
-#if genre == 'Charts':
-    st.subheader('Stock charts app')
-    complist = nifty_data['Symbol'].values.tolist()
-    complist.insert(0,'NIFTY')
-    #complist = nifty_data['Symbol']
-    st.subheader('Select Stock')
-    add_selectbox = st.selectbox(
-        "Select the stock for  chart or type in a few of letters of symbol.",
-        complist)
-    
-
-    if add_selectbox:
-        symbol = add_selectbox
-        #company = company['Company Name']
-        if symbol != 'NIFTY':
-            company = nifty_data[nifty_data['Symbol']==symbol]['Company Name']
-            company = company.values[0]
-            st.write("You have selected: ", symbol)          
-            st.write(company)
-            df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-200:]
-
-        else:
-            st.write("You have selected: ", symbol)          
-            st.write("Nifty Index ")
-            df = pd.read_csv('data/^NSEI.csv')[-200:]
-
-
-        st.header  = add_selectbox + '  Close \n'
-        #st.line_chart(df['Close'])
-        figc = chart(df)
-        st.plotly_chart(figc, use_container_width=True)
-        figc2 = chart2(df)
-        st.plotly_chart(figc2, use_container_width=True)
-
-
-        #df = pd.read_csv('data/{}'.format('^NSEI')+'.csv')[-300]
-        #company = 'NIFTY index'
-        '''
-        company = [nifty_data['Symbol']==symbol]['Company Name']
-        company=company.values[0]
-
-        st.write(company)  
-
-'''
-
-
 
 
 
