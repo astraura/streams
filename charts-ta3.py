@@ -10,22 +10,14 @@ import time
 import datetime as dt
 from scipy import stats
 from statistics import mean
-
-path = 'data/'
-#driver = webdriver.Chrome()
-#chrome_options.add_argument("--headless")
-
-
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
 df = pd.DataFrame()
 df = pd.read_csv('data/ZEEL.csv')
 df_new = yf.download('ZEEL.NS', period='1d' )
-#nifty= yf.download('^NSEI',period='5y')
-#nifty.to_csv('data/^NSEI.csv')
-
 latest = df_new.index.values[0]
 last_update = pd.to_datetime(df[-1:]['Date'].values[0])
+
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
