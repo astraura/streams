@@ -380,7 +380,7 @@ if genre == 'Momentum':
 
 if genre == 'Data Update':
     df0 = pd.DataFrame()
-    df0 = pd.read_csv('yearly/ZEEL.csv')
+    df0 = pd.read_csv('data/ZEEL.csv')
     df_new = yf.download('ZEEL.NS', period='1d' )
     latest = df_new.index.values[0]
     last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
@@ -393,7 +393,7 @@ if genre == 'Data Update':
         x= "Data Updated"
         st.write(x)
         #st.write("UpDate is current. ", last_update)
-        df0 = pd.read_csv('yearly/ZEEL.csv')
+        df0 = pd.read_csv('data/ZEEL.csv')
         last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
 
 
