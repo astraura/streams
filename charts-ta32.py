@@ -319,11 +319,10 @@ with tab1:
 
     if st.button("Update database"):  
 
-        st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
 
         #get_funda_data()
         if latest>last_update:
-
+            st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
             x=snapshot()
             x= "Data Updated"
             st.write(x)
