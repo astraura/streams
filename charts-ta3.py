@@ -18,11 +18,7 @@ path = 'data/'
 
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
-df = pd.DataFrame()
-df = pd.read_csv('data/ZEEL.csv')
-df_new = yf.download('ZEEL.NS', period='1d' )
-latest = df_new.index.values[0]
-last_update = pd.to_datetime(df[-1:]['Date'].values[0])
+
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
@@ -383,6 +379,12 @@ if genre == 'Momentum':
 
 
 if genre == 'Data Update':
+    df0 = pd.DataFrame()
+    df0 = pd.read_csv('yearly/ZEEL.csv')
+    df_new = yf.download('ZEEL.NS', period='1d' )
+    latest = df_new.index.values[0]
+    last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
+
     st.write("Database of stocks last updated on: ", last_update)
 
     if latest>last_update:
@@ -390,6 +392,11 @@ if genre == 'Data Update':
         x=snapshot()
         x= "Data Updated"
         st.write(x)
+        #st.write("UpDate is current. ", last_update)
+        df0 = pd.read_csv('yearly/ZEEL.csv')
+        last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
+
+
     else:
         st.write("UpDate is current. ", last_update)
 
@@ -405,9 +412,9 @@ if genre == 'Data Update':
             st.write(x)
         else:
             st.write("UpDate is current. ", last_update)
+    
 
-
-
+    
 #st.write("Candlestick Pattern Observed table1:")
 #st.write(cpattern)
 #st.add_selectbox.selected
