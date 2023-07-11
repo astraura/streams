@@ -309,7 +309,6 @@ with tab1:
     last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
 
     
-    st.write("Database of stocks last updated on: ", last_update)
 
     if latest>last_update:
 
@@ -331,6 +330,8 @@ with tab1:
             x=snapshot()
             x= "Data Updated"
             st.write(x)
+            st.write("Database of stocks last updated on: ", last_update)
+
         else:
             st.write("UpDate is current. ", last_update)
 
