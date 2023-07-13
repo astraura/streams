@@ -10,14 +10,26 @@ import time
 import datetime as dt
 from scipy import stats
 from statistics import mean
+from copy import deepcopy
+import numpy as np
+from pandas.tseries.frequencies import to_offset
 
-path = 'data/'
+
+path = 'yearly/'
 #driver = webdriver.Chrome()
 #chrome_options.add_argument("--headless")
 
 
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
+df = pd.DataFrame()
+df = pd.read_csv('yearly/ZEEL.csv')
+df_new = yf.download('ZEEL.NS', period='1d' )
+#nifty= yf.download('^NSEI',period='3y')
+#nifty.to_csv('yearly/^NSEI.csv')
+
+latest = df_new.index.values[0]
+last_update = pd.to_datetime(df[-1:]['Date'].values[0])
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
@@ -58,7 +70,7 @@ def snapshot():
     my_bar = st.progress(0)
     i=1
     #with open('nifty100.csv') as f:
-
+    datayday =[]
     for stock in tickers:
         with st.spinner('Wait.. {}'.format(stock)):
 
@@ -68,8 +80,8 @@ def snapshot():
         #    continue
             symbol =  stock  #line.split(",")[2]
             #data = yf.download(symbol+'.NS', start="2020-01-01", end="2020-08-01")
-            data = yf.download(symbol+'.NS', period='5y' )
-            data.to_csv('data/{}.csv'.format(symbol))
+            data = yf.download(symbol+'.NS', period='3y' )
+            data.to_csv('yearly/{}.csv'.format(symbol))
             my_bar.progress( round(i/len(nifty_data)*100))
             i+=1
             #if i>10:
@@ -79,12 +91,30 @@ def snapshot():
 
         #st.write (symbol+'.NS')
 
-    nifty= yf.download('^NSEI',period='5y')
-    nifty   .to_csv('data/^NSEI.csv')
+    nifty= yf.download('^NSEI',period='3y')
+    nifty.to_csv('yearly/^NSEI.csv')
 
     return {"Updation: ": "Success!" }
 
 def snapshot2():
+    datayday=[]
+    #pivots ={}
+    for stock in tickers:
+
+
+
+        #data.to_csv('Data.csv')
+        data = pd.read_csv('yearly/'+stock +'.csv')            
+
+        pivots = calc_pivots(data, stock)
+        datayday.append(deepcopy(pivots))
+
+    dataframe3 = pd.DataFrame(datayday)
+    dataframe3 = PPSR(dataframe3)
+    dataframe3 = WPPSR(dataframe3)
+    #currentClose = df["Adj Close"][-1:].values[0]
+    #return dataframe3
+    dataframe3.to_csv('Nifty200Pivots.csv', index=False)            
 
     
     return "Gompada"
@@ -281,6 +311,147 @@ def get_export_list(rs_df):
 
     return exportList
 
+def calcLevels(df):
+    def isSupport(df,i):
+        support = df['Low'][i] < df['Low'][i-1]  and df['Low'][i] < df['Low'][i+1] \
+            and df['Low'][i+1] < df['Low'][i+2] and df['Low'][i-1] < df['Low'][i-2]
+        return support
+    def isResistance(df,i):
+        resistance = df['High'][i] > df['High'][i-1]  and df['High'][i] > df['High'][i+1] \
+            and df['High'][i+1] > df['High'][i+2] and df['High'][i-1] > df['High'][i-2]
+        return resistance
+
+    def isFarFromLevel(l):
+        s =  np.mean(df['High'] - df['Low'])
+        return np.sum([abs(l-x) < s  for x in levels]) == 0
+    levels = []
+    for i in range(2,df.shape[0]-2):
+        if isSupport(df,i):
+            l = df['Low'][i]
+            if isFarFromLevel(l):
+                levels.append((i,l))
+        elif isResistance(df,i):
+            l = df['High'][i]
+            if isFarFromLevel(l):
+                levels.append((i,l))
+
+    return levels
+
+
+def Asc50(df):
+    df['50sma'] = df['Close'].rolling(window=50).mean()
+    sma50_10 =df[-10:-9]['50sma'].values[0]
+    sma50_05 =df[-5:-4]['50sma'].values[0]
+    sma50_00 =df[-1:]['50sma'].values[0]  
+    mas =[]  
+    mas.append(sma50_00)
+
+    if sma50_10<=sma50_05 and sma50_00>=sma50_05:
+        mas.append("Asc50")
+    else:
+        mas.append("ForD")
+    
+    df['20sma'] = df['Close'].rolling(window=20).mean()
+    sma20_10 =df[-10:-9]['20sma'].values[0]
+    sma20_05 =df[-5:-4]['20sma'].values[0]
+    sma20_00 =df[-1:]['20sma'].values[0]  
+    mas.append(sma20_00)
+
+    if sma20_10<=sma20_05 and sma20_00>=sma20_05:
+        mas.append("Asc20")
+    else:
+        mas.append("ForD")
+
+    return mas 
+
+def PPSR(data):
+    PP = pd.Series((data['High'] + data['Low'] + data['Close']) / 3)
+    R1 = pd.Series(2 * PP - data['Low'])
+    S1 = pd.Series(2 * PP - data['High'])
+    R2 = pd.Series(PP + data['High'] - data['Low'])
+    S2 = pd.Series(PP - data['High'] + data['Low'])
+    R3 = pd.Series(data['High'] + 2 * (PP - data['Low']))
+    S3 = pd.Series(data['Low'] - 2 * (data['High'] - PP))
+    psr = {'S3':S3, 'S2':S2, 'S1':S1, 'PP':PP, 'R1':R1,  'R2':R2,  'R3':R3}
+    PSR = pd.DataFrame(psr)
+    data= data.join(PSR)
+    return data
+
+def WPPSR(data):
+    PP = pd.Series((data['WHigh'] + data['WLow'] + data['WClose']) / 3)
+    R1 = pd.Series(2 * PP - data['WLow'])
+    S1 = pd.Series(2 * PP - data['WHigh'])
+    R2 = pd.Series(PP + data['WHigh'] - data['WLow'])
+    S2 = pd.Series(PP - data['WHigh'] + data['WLow'])
+    R3 = pd.Series(data['WHigh'] + 2 * (PP - data['WLow']))
+    S3 = pd.Series(data['WLow'] - 2 * (data['WHigh'] - PP))
+    psr = {'WS3':S3, 'WS2':S2, 'WS1':S1, 'WPP':PP, 'WR1':R1,  'WR2':R2,  'WR3':R3}
+    PSR = pd.DataFrame(psr)
+    data= data.join(PSR)
+    return data
+
+def calc_pivots(df0, stock):
+
+    #n = -1
+    pivots = {}
+    #datayday=[]
+
+    if df0.empty:
+        return "N/A"
+    df = df0.copy()
+    pivots['Date'] = df.tail(1)['Date'].values[0]
+    pivots['Symbol'] = stock
+
+    pivots['Open'] = df.tail(1)['Open'].values[0]
+    pivots['High'] = df.tail(1)['High'].values[0]
+    pivots['Low'] = df.tail(1)['Low'].values[0]
+    pivots['Close'] = df.tail(1)['Close'].values[0]
+
+    supports= calcLevels(df)
+    mas = Asc50(df)
+    #mas =[1,2,3,4]
+    try:
+
+        pivots['S_R1'] = supports[-1:][0][1]
+        pivots['S_R2'] = supports[-2:-1][0][1]
+        pivots['sma50']= mas[0]
+        pivots['MA50'] = mas[1]
+        pivots['sma20']= mas[2]
+        pivots['MA20'] = mas[3]
+    except:
+        pivots['Support'] = 0
+#weekly Data extraction
+    
+    f=df.copy()
+    f['Date'] = pd.to_datetime(f['Date'])
+    f.set_index('Date')
+    f.sort_index(inplace=True)
+    logic = {'Open'  : 'first',
+            'High'  : 'max',
+            'Low'   : 'min',
+            'Close' : 'last',
+            'Volume': 'sum'}
+    df3 = f.resample('W', on='Date').apply(logic)
+    df3.index -= to_offset("6D")
+
+    pivots['WOpen'] = df3.tail(1)['Open'].values[0]
+    pivots['WHigh'] = df3.tail(1)['High'].values[0]
+    pivots['WLow'] = df3.tail(1)['Low'].values[0]
+    pivots['WClose'] = df3.tail(1)['Close'].values[0]
+    #datayday.append(deepcopy(pivots))
+    return pivots
+
+def Candle(op,cl):
+    if (abs(cl-op)/cl <  .002):
+        return "D"
+    else:
+
+        if cl>op:
+            return "G"
+        else:
+            return "R"
+
+
 def write_formatted(dfx):
     colnames=[]
     for col in dfx.columns:
@@ -290,7 +461,7 @@ def write_formatted(dfx):
 
 st.subheader('Stock Selection Analysis: Nifty 200 index stocks')
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['Data Update','Returns', 'Fundamental', 'Momentum','Charts'])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Data Update','Returns', 'Fundamental', 'Momentum','Swing Picks', 'Charts'])
     
 #genre = st.sidebar.radio(
 #     "Select Analysis tables",
@@ -299,38 +470,26 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(['Data Update','Returns', 'Fundamental', 
 with tab1:
 
 #if genre == 'Data Update':
-    df0 = pd.DataFrame()
-    df0 = pd.read_csv('data/ZEEL.csv')
-    df_new = yf.download('ZEEL.NS', period='1d' )
-    #nifty= yf.download('^NSEI',period='5y')
-    #nifty.to_csv('data/^NSEI.csv')
-    
-    latest = df_new.index.values[0]
-    last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
-
-    
+    st.write("Database of stocks last updated on: ", last_update)
 
     if latest>last_update:
 
         x=snapshot()
         x= "Data Updated"
         st.write(x)
-        df0 = pd.read_csv('data/ZEEL.csv')
-        last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
-        
     else:
         st.write("UpDate is current. ", last_update)
 
     if st.button("Update database"):  
 
+        st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
 
         #get_funda_data()
         if latest>last_update:
-            st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
+
             x=snapshot()
             x= "Data Updated"
             st.write(x)
-            st.write("Database of stocks last updated on: ", last_update)
 
         else:
             st.write("UpDate is current. ", last_update)
@@ -356,14 +515,14 @@ with tab3:
     vdf = get_fundas(fdf)
     ranked_data = ranked_fundas(vdf)
     st.write('Sorted and Ranked based on fundas top 15')
-    st.write(ranked_data)
+    write_formatted(ranked_data)
     st.write('Ranking based on fundamentals. Full list')
-    st.write(vdf)
+    write_formatted(vdf)
 
 with tab4:
 
 #if genre == 'Momentum':
-
+    
     st.write("High Momentum stocks")
     rs_df = get_rs_df()
     export_list = get_export_list(rs_df)
@@ -375,8 +534,58 @@ with tab4:
     write_formatted(rs_df)
     #st.write(rs_df)
 #st.write("You have selected: " + add_selectbox)
-
 with tab5:
+    if latest>last_update:
+        snapshot2()
+    dfp0 = pd.read_csv("Nifty200Pivots.csv")
+
+    #dfp0['Symbol']= tickers
+    dfp0['Candle']= dfp0.apply(lambda x: Candle(x['Open'], x['Close']), axis=1)
+    
+
+    dfp = dfp0.copy()
+    dfp = dfp[dfp['MA50']=='Asc50' ]
+    dfp = dfp[dfp['Candle'] == 'G']
+    dfp = dfp[abs(dfp['Low']-dfp['sma50'])/dfp['sma50'] < .0025]
+    st.subheader("Close near ascending 50 SMA .")
+    st.write(dfp)
+
+    st.write(len(dfp))
+    dfp = dfp0.copy()
+    dfp = dfp[dfp['MA20']=='Asc20' ]
+    dfp = dfp[dfp['Candle'] == 'G']
+    dfp = dfp[abs(dfp['Low']-dfp['sma20'])/dfp['sma20'] < .0025]
+
+    st.subheader("Close near ascending 20  SMA. ")
+    st.write(dfp)
+    #dft0['nearWKH'] = dft0.apply(lambda x: (1-x['Last Close'] / x['52wkhi']) * 100, axis=1)
+    
+    st.subheader('Close near support. ')
+    dfp = dfp0.copy()
+    #dfp = dfp[dfp['MA20']=='Asc20' ]
+    dfp = dfp[dfp['Candle'] == 'G']
+    #dfp['min'] = dfp[ min(dfp['S_R1'], dfp['S_R2'])] # dfp[min(dfp['S_R1'], dfp['S_R2'])/dfp['Close'] < .0025]
+    dfp =dfp[abs(dfp['S_R1']-dfp['Low'])/dfp['Low'] < .005  ]
+
+
+    st.write(dfp)
+    st.subheader('Close near support. (2)')
+
+    dfp = dfp0.copy()
+    #dfp = dfp[dfp['MA20']=='Asc20' ]
+    dfp = dfp[dfp['Candle'] == 'G']
+    #dfp['min'] = dfp[ min(dfp['S_R1'], dfp['S_R2'])] # dfp[min(dfp['S_R1'], dfp['S_R2'])/dfp['Close'] < .0025]
+    dfp =dfp[abs(dfp['S_R2']-dfp['Low'])/dfp['Low'] < .005  ]
+
+
+    st.write(dfp)
+
+
+   
+    st.subheader("Raw Pivot Points data")
+    st.write(dfp0)
+
+with tab6:
 #if genre == 'Charts':
     st.subheader('Stock charts app')
     complist = nifty_data['Symbol'].values.tolist()
@@ -396,12 +605,12 @@ with tab5:
             company = company.values[0]
             st.write("You have selected: ", symbol)          
             st.write(company)
-            df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-200:]
+            df = pd.read_csv('yearly/{}'.format(symbol)+'.csv')[-200:]
 
         else:
             st.write("You have selected: ", symbol)          
             st.write("Nifty Index ")
-            df = pd.read_csv('data/^NSEI.csv')[-200:]
+            df = pd.read_csv('yearly/^NSEI.csv')[-200:]
 
 
         st.header  = add_selectbox + '  Close \n'
@@ -412,7 +621,7 @@ with tab5:
         st.plotly_chart(figc2, use_container_width=True)
 
 
-        #df = pd.read_csv('data/{}'.format('^NSEI')+'.csv')[-300]
+        #df = pd.read_csv('yearly/{}'.format('^NSEI')+'.csv')[-300]
         #company = 'NIFTY index'
         '''
         company = [nifty_data['Symbol']==symbol]['Company Name']
