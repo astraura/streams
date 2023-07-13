@@ -15,7 +15,7 @@ import numpy as np
 from pandas.tseries.frequencies import to_offset
 
 
-path = 'yearly/'
+path = 'data/'
 #driver = webdriver.Chrome()
 #chrome_options.add_argument("--headless")
 
@@ -23,10 +23,10 @@ path = 'yearly/'
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
 df = pd.DataFrame()
-df = pd.read_csv('yearly/ZEEL.csv')
+df = pd.read_csv('data/ZEEL.csv')
 df_new = yf.download('ZEEL.NS', period='1d' )
 #nifty= yf.download('^NSEI',period='3y')
-#nifty.to_csv('yearly/^NSEI.csv')
+#nifty.to_csv('data/^NSEI.csv')
 
 latest = df_new.index.values[0]
 last_update = pd.to_datetime(df[-1:]['Date'].values[0])
@@ -81,7 +81,7 @@ def snapshot():
             symbol =  stock  #line.split(",")[2]
             #data = yf.download(symbol+'.NS', start="2020-01-01", end="2020-08-01")
             data = yf.download(symbol+'.NS', period='3y' )
-            data.to_csv('yearly/{}.csv'.format(symbol))
+            data.to_csv('data/{}.csv'.format(symbol))
             my_bar.progress( round(i/len(nifty_data)*100))
             i+=1
             #if i>10:
@@ -92,7 +92,7 @@ def snapshot():
         #st.write (symbol+'.NS')
 
     nifty= yf.download('^NSEI',period='3y')
-    nifty.to_csv('yearly/^NSEI.csv')
+    nifty.to_csv('data/^NSEI.csv')
 
     return {"Updation: ": "Success!" }
 
@@ -104,7 +104,7 @@ def snapshot2():
 
 
         #data.to_csv('Data.csv')
-        data = pd.read_csv('yearly/'+stock +'.csv')            
+        data = pd.read_csv('data/'+stock +'.csv')            
 
         pivots = calc_pivots(data, stock)
         datayday.append(deepcopy(pivots))
@@ -605,12 +605,12 @@ with tab6:
             company = company.values[0]
             st.write("You have selected: ", symbol)          
             st.write(company)
-            df = pd.read_csv('yearly/{}'.format(symbol)+'.csv')[-200:]
+            df = pd.read_csv('data/{}'.format(symbol)+'.csv')[-200:]
 
         else:
             st.write("You have selected: ", symbol)          
             st.write("Nifty Index ")
-            df = pd.read_csv('yearly/^NSEI.csv')[-200:]
+            df = pd.read_csv('data/^NSEI.csv')[-200:]
 
 
         st.header  = add_selectbox + '  Close \n'
@@ -621,7 +621,7 @@ with tab6:
         st.plotly_chart(figc2, use_container_width=True)
 
 
-        #df = pd.read_csv('yearly/{}'.format('^NSEI')+'.csv')[-300]
+        #df = pd.read_csv('data/{}'.format('^NSEI')+'.csv')[-300]
         #company = 'NIFTY index'
         '''
         company = [nifty_data['Symbol']==symbol]['Company Name']
