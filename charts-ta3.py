@@ -107,18 +107,22 @@ def returns():
     for i in stocks.index:
         df = pd.read_csv(path+stocks[i]+'.csv')
         #df.round(decimals =2 )
+        if len(df)>252:
 
-        df['change']= df['Adj Close'].pct_change()
-        yrate =  df.loc[-250:,'change'].mean()*252
-        data.loc[i,'Symbol'] = stocks[i]
-        data.loc[i,'Price'] = df.loc[len(df)-1,'Adj Close']
-
-        data.loc[i, '1dretAnnualized']= yrate
-        data.loc[i, 'y1_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-252,'Adj Close']-1
-        data.loc[i, 'm6_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-130,'Adj Close']-1 
-        data.loc[i, 'm3_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-70,'Adj Close']-1    
-        data.loc[i, 'm1_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-30,'Adj Close']-1
-
+            df['change']= df['Adj Close'].pct_change()
+            yrate =  df.loc[-250:,'change'].mean()*252
+            data.loc[i,'Symbol'] = stocks[i]
+            data.loc[i,'Price'] = df.loc[len(df)-1,'Adj Close']
+    
+            data.loc[i, '1dretAnnualized']= yrate
+            data.loc[i, 'y1_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-252,'Adj Close']-1
+            data.loc[i, 'm6_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-130,'Adj Close']-1 
+            data.loc[i, 'm3_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-70,'Adj Close']-1    
+            data.loc[i, 'm1_return'] = df.loc[len(df)-1,'Adj Close']/df.loc[len(df)-30,'Adj Close']-1
+        
+        else:
+            continue
+    
     time_period = ["y1","m6","m3","m1"]
     #time_period = ['1yReturn','6mReturn','3mReturn','1mReturn']
 
