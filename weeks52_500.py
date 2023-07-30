@@ -332,7 +332,7 @@ def chart(symbol):
         symbol=='M%26MFIN'
 
     
-    imageurl='https://main.icharts.in/ShowChart.php?symbol={}&period=Daily&chart_size=400&log_chart=0&pr_period=3M&uind1=SMA&uind1_param=20&uind2=SMA&uind2_param=50'.format(symbol)
+    imageurl='https://main.icharts.in/ShowChart.php?symbol={}&period=Daily&chart_size=300&log_chart=0&pr_period=3M&uind1=SMA&uind1_param=20&uind2=SMA&uind2_param=50'.format(symbol)
     #display(Image(url= imageurl))
     #![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
     #urllib.request.urlretrieve(imageurl,"gfg.png")
@@ -342,7 +342,7 @@ def chart(symbol):
 
 
 def chart2(symbol):
-    imageurl='https://main.icharts.in/ShowChart.php?symbol={}&period=Weekly&chart_size=400&log_chart=0&pr_period=1Y&uind1=SMA&uind1_param=10&uind2=SMA&uind2_param=30'.format(symbol)
+    imageurl='https://main.icharts.in/ShowChart.php?symbol={}&period=Weekly&chart_size=300&log_chart=0&pr_period=1Y&uind1=SMA&uind1_param=10&uind2=SMA&uind2_param=30'.format(symbol)
     st.components.v1.iframe(imageurl, width=None, height=250, scrolling=False)
 
 
