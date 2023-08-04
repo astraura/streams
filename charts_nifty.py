@@ -41,7 +41,8 @@ def get_df(apidata):
 
     df = pd.DataFrame(data, columns=cols)
     return df
-df1= get_df(apidata1)    
-df2= get_df(apidata2)
-st.write(df1)
-st.write(df2)
+#df1= get_df(apidata1)    
+#df2= get_df(apidata2)
+st.write("testing")
+st.write(apidata1)
+#st.write(df2)
