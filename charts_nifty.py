@@ -11,9 +11,17 @@ headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 sess = requests.Session()
 cookies = dict()
 url_nif ='https://www.nseindia.com/market-data/live-equity-market'
+request = sess.get(url_nif, headers=headers, timeout=5)
+cookies = dict(request.cookies)
+st.write(cookies)
 def set_cookie():
+            
     request = sess.get(url_nif, headers=headers, timeout=5)
     cookies = dict(request.cookies)
+            
+            
+            
+            
 url200='https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200'
 url500='https://www.nseindia.com/api/equity-stockIndices?index=NIFTY500%20MULTICAP%2050%3A25%3A25'
 
