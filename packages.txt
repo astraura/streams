@@ -1,2 +1,3 @@
 chromium
 selenium
+chromium-driver
