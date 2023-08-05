@@ -9,6 +9,5 @@ scipy
 statistics
 requests
 bs4
-selenium
 os
 sys
