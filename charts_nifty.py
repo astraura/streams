@@ -10,7 +10,10 @@ headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 sess = requests.Session()
 cookies = dict()
+url_nif0 ='https://www.nseindia.com/'
 url_nif ='https://www.nseindia.com/market-data/live-equity-market'
+request = sess.get(url_nif0, headers=headers, timeout=5)
+
 request = sess.get(url_nif, headers=headers, timeout=5)
 cookies = dict(request.cookies)
 st.write(cookies)
