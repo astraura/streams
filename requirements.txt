@@ -9,5 +9,5 @@ scipy
 statistics
 requests
 bs4
-os
-sys
+seleniumbase
+webdriver-manager
