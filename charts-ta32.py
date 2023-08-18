@@ -22,14 +22,11 @@ path = 'data/'
 
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
-df = pd.DataFrame()
-df = pd.read_csv('data/ZEEL.csv')
-df_new = yf.download('ZEEL.NS', period='1d' )
-#nifty= yf.download('^NSEI',period='3y')
-#nifty.to_csv('data/^NSEI.csv')
+murl ='https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=N&indicesID=49&selTab=f&selSubTab=&selPage=marketTerminal&classic=true'
+df = pd.read_html(murl)[0]
+df.to_csv('Nifty 200 funda data.csv')
 
-latest = df_new.index.values[0]
-last_update = pd.to_datetime(df[-1:]['Date'].values[0])
+
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
@@ -474,26 +471,38 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Data Update','Returns', 'Fundamen
 with tab1:
 
 #if genre == 'Data Update':
-    st.write("Database of stocks last updated on: ", last_update)
+    df0 = pd.DataFrame()
+    df0 = pd.read_csv('data/ZEEL.csv')
+    df_new = yf.download('ZEEL.NS', period='1d' )
+    #nifty= yf.download('^NSEI',period='5y')
+    #nifty.to_csv('data/^NSEI.csv')
+    
+    latest = df_new.index.values[0]
+    last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
+
+    
 
     if latest>last_update:
 
         x=snapshot()
         x= "Data Updated"
         st.write(x)
+        df0 = pd.read_csv('data/ZEEL.csv')
+        last_update = pd.to_datetime(df0[-1:]['Date'].values[0])
+        
     else:
         st.write("UpDate is current. ", last_update)
 
     if st.button("Update database"):  
 
-        st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
 
         #get_funda_data()
         if latest>last_update:
-
+            st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
             x=snapshot()
             x= "Data Updated"
             st.write(x)
+            st.write("Database of stocks last updated on: ", last_update)
 
         else:
             st.write("UpDate is current. ", last_update)
