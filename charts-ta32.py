@@ -90,7 +90,7 @@ def snapshot():
 
     nifty= yf.download('^NSEI',period='3y')
     nifty.to_csv('data/^NSEI.csv')
-
+    snapshot2()
     return {"Updation: ": "Success!" }
 
 def snapshot2():
@@ -501,15 +501,15 @@ with tab1:
 
 
         #get_funda_data()
-        if latest>last_update:
-            st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
-            x=snapshot()
-            x= "Data Updated"
-            st.write(x)
-            st.write("Database of stocks last updated on: ", last_update)
+        #if latest>last_update:
+        st.warning('Warning. Page visits external sites to update data. Please wait. It may take sometime.')
+        x=snapshot()
+        x= "Data Updated"
+        st.write(x)
+        st.write("Database of stocks last updated on: ", last_update)
 
-        else:
-            st.write("UpDate is current. ", last_update)
+        #else:
+        st.write("UpDate is current. ", last_update)
 
     
 with tab2:
