@@ -84,13 +84,31 @@ def snapshot():
 
     nifty= yf.download('^NSEI',period='5y')
     nifty   .to_csv('data/^NSEI.csv')
-
+    snapshot2()
     return {"Updation: ": "Success!" }
 
 def snapshot2():
+    datayday=[]
+    #pivots ={}
+    for stock in tickers:
+
+
+
+        #data.to_csv('Data.csv')
+        data = pd.read_csv('data/'+stock +'.csv')            
+
+        pivots = calc_pivots(data, stock)
+        datayday.append(deepcopy(pivots))
+
+    dataframe3 = pd.DataFrame(datayday)
+    dataframe3 = PPSR(dataframe3)
+    dataframe3 = WPPSR(dataframe3)
+    #currentClose = df["Adj Close"][-1:].values[0]
+    #return dataframe3
+    dataframe3.to_csv('Nifty200Pivots.csv', index=False)            
 
     
-    return "Gompada"
+    #return "Gompada"
 
 
 
@@ -160,17 +178,19 @@ def get_fundas(df):
 
     #vdf['PE/ROE']=vdf['P/E']/vdf['ROE%']
     vdf['ROE/PE']=vdf['ROE%']/vdf['P/E']
+    vdf['BVPS/LTP']=vdf['BVPS(Rs.)']/vdf['LTP']
    
     return vdf
 
 def ranked_fundas(vdf):
     vdfselect0 = vdf[vdf['ROE/PE']<.5*vdf['ROE/PE'].mean()]
     vdfselect = vdfselect0.copy()
-    vdfselect['NPM%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
+    #vdfselect['NPM%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
+    vdfselect['BVPS/LTP_percentile']=pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)    
     vdfselect['ROE%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
     vdfselect['ROE/PE_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
     vdfselect['HQV_Score']=pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
-    criteria = ['NPM%','ROE%','ROE/PE']
+    criteria = ['BVPS/LTP','ROE%','ROE/PE']
     #time_period = ['1yReturn','6mReturn','3mReturn','1mReturn']
 
     for row in vdfselect.index:
