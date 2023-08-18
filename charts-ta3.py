@@ -337,8 +337,8 @@ if genre == 'Fundamental':
     st.write('Ranking based on fundamentals. Full list')
     #vdf = vdf.style.format({"LTP": "{:.2f}"})
    
-    #st.write(vdf)
-    write_formatted(vdf)
+    st.write(vdf)
+    #write_formatted(vdf)
 
 if genre == 'Charts':
     st.subheader('Stock charts app')
