@@ -178,17 +178,19 @@ def get_fundas(df):
 
     #vdf['PE/ROE']=vdf['P/E']/vdf['ROE%']
     vdf['ROE/PE']=vdf['ROE%']/vdf['P/E']
+    vdf['BVPS/LTP']=vdf['BVPS(Rs.)']/vdf['LTP']
    
     return vdf
 
 def ranked_fundas(vdf):
     vdfselect0 = vdf[vdf['ROE/PE']<.5*vdf['ROE/PE'].mean()]
     vdfselect = vdfselect0.copy()
-    vdfselect['NPM%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
+    #vdfselect['NPM%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
+    vdfselect['BVPS/LTP_percentile']=pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)    
     vdfselect['ROE%_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
     vdfselect['ROE/PE_percentile'] = pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
     vdfselect['HQV_Score']=pd.Series(np.random.randn(len(vdfselect)), index=vdfselect.index)
-    criteria = ['NPM%','ROE%','ROE/PE']
+    criteria = ['BVPS/LTP','ROE%','ROE/PE']
     #time_period = ['1yReturn','6mReturn','3mReturn','1mReturn']
 
     for row in vdfselect.index:
