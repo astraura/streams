@@ -332,8 +332,8 @@ if genre == 'Fundamental':
     st.write('Sorted and Ranked based on fundas top 15')
     #ranked_data = ranked_data.style.format({"LTP": "{:.2f}"})
 
-    #st.write(ranked_data)
-    write_formatted(ranked_data)
+    st.write(ranked_data)
+    #write_formatted(ranked_data)
     st.write('Ranking based on fundamentals. Full list')
     #vdf = vdf.style.format({"LTP": "{:.2f}"})
    
