@@ -528,9 +528,11 @@ with tab3:
     vdf = get_fundas(fdf)
     ranked_data = ranked_fundas(vdf)
     st.write('Sorted and Ranked based on fundas top 15')
-    write_formatted(ranked_data)
+    #write_formatted(ranked_data)
+    st.write(ranked_data)
     st.write('Ranking based on fundamentals. Full list')
-    write_formatted(vdf)
+    #write_formatted(vdf)
+    st.write(vdf)
 
 with tab4:
 
