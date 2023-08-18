@@ -18,7 +18,9 @@ path = 'data/'
 
 nifty_data= pd.read_csv('nifty200.csv')
 tickers = nifty_data['Symbol'].to_list()
-
+murl ='https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=N&indicesID=49&selTab=f&selSubTab=&selPage=marketTerminal&classic=true'
+df = pd.read_html(murl)[0]
+df.to_csv('Nifty 200 funda data.csv')
 
 def chart(df):
     candlestick = go.Candlestick(x=df['Date'], open=df['Open'], high=df['High'], low=df['Low'], close=df['Close'])
