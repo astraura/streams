@@ -340,6 +340,10 @@ def calcLevels(df):
 
 
 def Asc50(df):
+    if df.empty:
+        return "N/A"
+    if len(df)<10:
+        return "N/A"    
     df['50sma'] = df['Close'].rolling(window=50).mean()
     sma50_10 =df[-10:-9]['50sma'].values[0]
     sma50_05 =df[-5:-4]['50sma'].values[0]
