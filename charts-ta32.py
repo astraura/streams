@@ -69,7 +69,7 @@ def snapshot():
     #with open('nifty100.csv') as f:
     datayday =[]
     for stock in tickers:
-        with st.spinner('Wait.. {}'.format(stock)):
+        with st.spinner('Wait..gathering data.. {}'.format(stock)):
 
         #st.spinner('Wait..updated.' + symbol)
        
@@ -94,17 +94,23 @@ def snapshot():
     return {"Updation: ": "Success!" }
 
 def snapshot2():
+    my_bar = st.progress(0)
+    i=1
+
     datayday=[]
     #pivots ={}
     for stock in tickers:
+        with st.spinner('Wait..calculating support / resistance .. {}'.format(stock)):
 
 
 
-        #data.to_csv('Data.csv')
-        data = pd.read_csv('data/'+stock +'.csv')            
+            #data.to_csv('Data.csv')
+            data = pd.read_csv('data/'+stock +'.csv')            
 
-        pivots = calc_pivots(data, stock)
-        datayday.append(deepcopy(pivots))
+            pivots = calc_pivots(data, stock)
+            datayday.append(deepcopy(pivots))
+            my_bar.progress( round(i/len(tickers)*100))
+            i+=1
 
     dataframe3 = pd.DataFrame(datayday)
     dataframe3 = PPSR(dataframe3)
@@ -466,6 +472,18 @@ def write_formatted(dfx):
     colnames=colnames[2:]    
     st.dataframe(dfx.style.format(subset=colnames, formatter="{:.2f}"))
 
+def write_formatted2(dfx, col_left):
+    colnames=[]
+    for col in dfx.columns:
+        colnames.append(col)
+    colnames=colnames[col_left:]  
+    for colname in colnames:
+        #dfx[colname]=dfx[colname].astype(float)
+        dfx[colname] = dfx[colname].apply(pd.to_numeric, errors='coerce')
+    st.dataframe(dfx.style.format(subset=colnames, formatter="{:.2f}"))
+
+
+
 st.subheader('Stock Selection Analysis: Nifty 200 index stocks')
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(['Data Update','Returns', 'Fundamental', 'Momentum','Swing Picks', 'Charts'])
@@ -534,11 +552,11 @@ with tab3:
     vdf = get_fundas(fdf)
     ranked_data = ranked_fundas(vdf)
     st.write('Sorted and Ranked based on fundas top 15')
-    #write_formatted(ranked_data)
+    2write_formatted(ranked_data,1)
     st.write(ranked_data)
     st.write('Ranking based on fundamentals. Full list')
-    #write_formatted(vdf)
-    st.write(vdf)
+    write_formatted2(vdf,1)
+    #st.write(vdf)
 
 with tab4:
 
